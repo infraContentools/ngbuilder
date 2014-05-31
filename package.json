@@ -1,0 +1,45 @@
+{
+	"name": "ngbuilder",
+	"version": "0.0.0",
+	"description": "AngularJS component builder",
+	"main": "Builder.js",
+	"dependencies": {
+		"chalk": "~0.4.0",
+		"gulp": "~3.6.2",
+		"gulp-templatecache": "~0.0.1",
+		"gulp-concat": "~2.2.0",
+		"gulp-extend": "~0.1.0",
+
+		"gulp-rename": "~1.2.0",
+		"q": "~1.0.1",
+		"gulp-wrap": "~0.3.0",
+		"gulp-uglify": "~0.2.1",
+		"inquirer": "~0.4.1",
+		"stream-combiner": "~0.2.0"
+	},
+	"devDependencies": {},
+	"scripts": {
+		"test": "gulp test"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/darlanalves/ngbuilder"
+	},
+	"keywords": [
+		"angularjs",
+		"gulp",
+		"ngbuilder"
+	],
+	"author": {
+		"name": "Darlan Alves",
+		"email": "darlan@moovia.com"
+	},
+	"bin": {
+		"ngbuilder": "./bin/ngbuilder.js"
+	},
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/darlanalves/ngbuilder/issues"
+	},
+	"homepage": "https://github.com/darlanalves/ngbuilder"
+}
