@@ -1,4 +1,3 @@
-/* jshint node:true */
 'use strict';
 
 var livereload = require('gulp-livereload');
@@ -9,7 +8,9 @@ var AppBuilder = require('./lib/AppModuleBuilder');
 
 var paths = {},
 	libraries = [],
-	applications = [];
+	applications = [],
+	libPrefix = 'core.',
+	appPrefix = 'app.';
 
 function setPaths(_paths) {
 	copy(paths, _paths);
@@ -32,13 +33,12 @@ function watchAppModulesTask() {
 }
 
 function buildCoreModulesTask(done) {
-	var buildCount = 0,
-		maxCount = libraries.length;
+	var buildCount = 0;
 
 	libraries.forEach(function(moduleName) {
 		buildCoreModule(moduleName).on('change', function(err) {
 			if (err) done(err);
-			if (++buildCount === maxCount) done();
+			if (++buildCount === libraries.length) done();
 		});
 	});
 }
@@ -68,11 +68,11 @@ function watchAppModule(moduleName) {
 }
 
 function makeAppModuleBuilder(moduleName) {
-	return new AppBuilder('app.' + moduleName, paths.apps + moduleName, paths);
+	return new AppBuilder(appPrefix + moduleName, paths.apps + moduleName, paths);
 }
 
 function makeCoreModuleBuilder(moduleName) {
-	return new CoreBuilder('core.' + moduleName, paths.library + moduleName);
+	return new CoreBuilder(libPrefix + moduleName, paths.library + moduleName);
 }
 
 function updateConfigs(options) {
@@ -86,6 +86,14 @@ function updateConfigs(options) {
 
 	if (options.apps) {
 		applications = options.apps;
+	}
+
+	if (options.libPrefix) {
+		libPrefix = options.libPrefix;
+	}
+
+	if (options.appPrefix) {
+		appPrefix = options.appPrefix;
 	}
 }
 
