@@ -2,7 +2,7 @@
 	"name": "ngbuilder",
 	"version": "0.0.0",
 	"description": "AngularJS component builder",
-	"main": "Builder.js",
+	"main": "index.js",
 	"dependencies": {
 		"chalk": "~0.4.0",
 		"gulp": "~3.6.2",

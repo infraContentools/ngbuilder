@@ -4,20 +4,12 @@
 
 var Liftoff = require('liftoff');
 var chalk = require('chalk');
-var Builder = require('../Builder');
+//var Builder = require('../Builder');
 
 var cli = new Liftoff({
 	name: 'Builder',
 	moduleName: 'builder',
 	configName: 'package'
-});
-
-cli.on('require', function(name) {
-	console.log('Requiring external module', chalk.magenta(name));
-});
-
-cli.on('requireFail', function(name) {
-	console.log(chalk.red('Failed to load external module'), chalk.magenta(name));
 });
 
 cli.launch(handleArguments);
@@ -30,7 +22,7 @@ function handleArguments(env) {
 
 	if (versionFlag) {
 		var cliPackage = require('../package');
-		Builder.log(cliPackage.version);
+		console.log(cliPackage.version);
 		process.exit(0);
 	}
 
@@ -39,8 +31,19 @@ function handleArguments(env) {
 		process.exit(1);
 	}
 
-	var modulePackage = require(env.configPath);
+	var modulePackage = require(env.configPath),
+		builderInstance = Builder.create(modulePackage);
 
-	console.log(modulePackage);
-	console.log(env);
+	builderInstance.verbose = verbose;
+	builderInstance.env = env;
+
+	if (process.cwd() !== env.cwd) {
+		process.chdir(env.cwd);
+		Builder.info('Working directory changed to', chalk.magenta(env.cwd)); //tildify(
+	}
+
+	builderInstance.run();
+	// console.log(modulePackage);
+	// console.log(env);
+
 }
