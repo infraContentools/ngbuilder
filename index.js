@@ -6,9 +6,15 @@ var livereloadServer;
 var CoreBuilder = require('./lib/CoreModuleBuilder');
 var AppBuilder = require('./lib/AppModuleBuilder');
 
-var paths = {},
+var paths = {
+		'public': 'public',
+		apps: 'src/apps',
+		libraries: 'src/library'
+	},
+
 	libraries = [],
 	applications = [],
+
 	libPrefix = 'core.',
 	appPrefix = 'app.';
 
@@ -119,7 +125,6 @@ function loadConfigsFromManifest(__dirname) {
 		'public': makePath(paths.public),
 		'apps': makePath(paths.apps),
 		'libraries': makePath(paths.libraries)
-		//'includes': [makePath('source/app')]
 	};
 
 	function makePath(partial) {
@@ -136,9 +141,8 @@ function loadConfigsFromManifest(__dirname) {
 }
 
 function serveFiles(port) {
-	var Server = require('./lib/StaticServer'),
-
-		staticServer = new Server(paths.publicPath);
+	var Server = require('./lib/StaticServer');
+	var staticServer = new Server(paths.public || 'public');
 
 	staticServer.listen(port || 8000);
 
@@ -152,5 +156,6 @@ module.exports = {
 	buildApps: buildAppModulesTask,
 	configure: updateConfigs,
 	loadConfigsFromManifest: loadConfigsFromManifest,
-	serve: serveFiles
+	serveFiles: serveFiles,
+	log: require('./lib/helpers/log')
 };
