@@ -56,12 +56,15 @@ your app would be like this:
 
 ```javascript
 
-angular.module('foo', ['user', 'store']);
+var $module = angular.module('foo', ['user', 'store']);
+export $module;
+
+$module.controller('MyCtrl', ...)
 // ...
 
 ```
 
-Since we have __Browserify__ and __ES6__ support built-in, so you would do it this way:
+Since we have __Browserify__ and __ES6__ support built-in, you would do it this way:
 
 ```javascript
 
