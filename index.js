@@ -97,10 +97,60 @@ function updateConfigs(options) {
 	}
 }
 
+function loadConfigsFromManifest(__dirname) {
+	var fs = require('fs'),
+		path = require('path'),
+		pkg = path.join(__dirname, 'package.json');
+
+	if (!fs.existsSync(pkg)) {
+		throw new Error('package.json not found in ' + __dirname);
+	}
+
+	pkg = require(pkg);
+
+	if (!pkg.ngbuilder) {
+		throw new Error('Builder configs not found in package.json. Make sure you have a "ngbuilder" section in your manifest');
+	}
+
+	var options = pkg.ngbuilder,
+		paths = ngbuilder.paths;
+
+	var paths = {
+		'public': makePath(paths.public),
+		'apps': makePath(paths.apps),
+		'libraries': makePath(paths.libraries)
+		//'includes': [makePath('source/app')]
+	};
+
+	function makePath(partial) {
+		return path.join(__dirname, partial);
+	}
+
+	updateConfigs({
+		paths: paths,
+		libraries: options.libraries || [],
+		apps: options.apps || [],
+		libPrefix: options.libPrefix || false,
+		appPrefix: options.appPrefix || false
+	});
+}
+
+function serveFiles(port) {
+	var Server = require('./lib/StaticServer'),
+
+		staticServer = new Server(paths.publicPath);
+
+	staticServer.listen(port || 8000);
+
+	return staticServer;
+}
+
 module.exports = {
 	watchLibs: watchCoreModulesTask,
 	watchApps: watchAppModulesTask,
 	buildLibs: buildCoreModulesTask,
 	buildApps: buildAppModulesTask,
-	configure: updateConfigs
+	configure: updateConfigs,
+	loadConfigsFromManifest: loadConfigsFromManifest,
+	serve: serveFiles
 };
