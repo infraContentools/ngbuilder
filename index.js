@@ -72,7 +72,7 @@ function makeAppModuleBuilder(moduleName) {
 }
 
 function makeCoreModuleBuilder(moduleName) {
-	return new CoreBuilder(libPrefix + moduleName, paths.library + moduleName);
+	return new CoreBuilder(libPrefix + moduleName, paths.libraries + moduleName);
 }
 
 function updateConfigs(options) {
@@ -113,9 +113,9 @@ function loadConfigsFromManifest(__dirname) {
 	}
 
 	var options = pkg.ngbuilder,
-		paths = ngbuilder.paths;
+		paths = options.paths;
 
-	var paths = {
+	paths = {
 		'public': makePath(paths.public),
 		'apps': makePath(paths.apps),
 		'libraries': makePath(paths.libraries)
