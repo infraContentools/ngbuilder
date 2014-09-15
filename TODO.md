@@ -1,0 +1,2 @@
+- Plugins (less/sass/stylus/coffeescript/typescript)
+- A configurable set of tasks per module

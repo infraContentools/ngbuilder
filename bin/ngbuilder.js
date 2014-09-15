@@ -37,6 +37,10 @@ function handleArguments(env) {
 
 	var cmd = args._[0];
 
+	if ('d' in args) {
+		process.env.DEBUG = true;
+	}
+
 	switch (cmd) {
 		case 'build':
 			builder.log.info('Building the entire app! Bear with me...');

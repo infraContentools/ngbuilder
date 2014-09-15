@@ -12,7 +12,8 @@ $ npm install -g ngbuilder
 
 Write a modular/pluggable component builder to AngularJS, with the following:
 
-- You write all your `.js` files inside a "/src" folder
+- You write all your `.js` files inside a "/src" folder. Angular annotations 
+in this sources are handled with ng-annotate.
 - You write your `.scss/.less/.whatever` files in a "scss/less/whatever" folder
 - You write your views (`.html` partials) in a "views" folder and they are 
 bundled with the sources, using `$templateCache`

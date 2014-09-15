@@ -5,6 +5,7 @@ var livereloadServer;
 
 var CoreBuilder = require('./lib/CoreModuleBuilder');
 var AppBuilder = require('./lib/AppModuleBuilder');
+var path = require('path');
 
 var paths = {
 		'public': 'public',
@@ -43,6 +44,7 @@ function buildCoreModulesTask(done) {
 
 	libraries.forEach(function(moduleName) {
 		buildCoreModule(moduleName).on('change', function(err) {
+			if (!done) return;
 			if (err) done(err);
 			if (++buildCount === libraries.length) done();
 		});
@@ -74,11 +76,11 @@ function watchAppModule(moduleName) {
 }
 
 function makeAppModuleBuilder(moduleName) {
-	return new AppBuilder(appPrefix + moduleName, paths.apps + moduleName, paths);
+	return new AppBuilder(appPrefix + moduleName, path.join(paths.apps, moduleName), paths);
 }
 
 function makeCoreModuleBuilder(moduleName) {
-	return new CoreBuilder(libPrefix + moduleName, paths.libraries + moduleName);
+	return new CoreBuilder(libPrefix + moduleName, path.join(paths.libraries, moduleName));
 }
 
 function updateConfigs(options) {
@@ -105,7 +107,6 @@ function updateConfigs(options) {
 
 function loadConfigsFromManifest(__dirname) {
 	var fs = require('fs'),
-		path = require('path'),
 		pkg = path.join(__dirname, 'package.json');
 
 	if (!fs.existsSync(pkg)) {
