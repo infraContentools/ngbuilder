@@ -1,5 +1,13 @@
 # Angular module builder
 
+## Install with npm
+
+```
+
+$ npm install -g ngbuilder
+
+```
+
 ## Goals
 
 Write a modular/pluggable component builder to AngularJS, with the following:
@@ -14,43 +22,64 @@ The builder then should load a plugin to "compile" each of this folder contents,
 to generate a single file for each resource 
 (module.js, module.css, module.i18n.json...)
 
-## Angular module structure
+## Commands
+
+See the usage options right from the command-line. On a terminal, run this:
+
+```
+$ ngbuilder
+```
+
+## Module structure
 
 Each module should have a structure similar to this:
 
 
 ```
 /src			module JS sources (expected: module.js + **/*.js)
-/test			tests (soon)
-/i18n			translation tables (soon)
-/scss			SCSS sources (soon)
-```
+/views			HTML partials (mostly directive templates)
 
-## Output
-
-The builder watches generate a "index.js" file per module
-
-```
-/index.css		module CSS file (soon)
-/index.js		module main file
+// soon
+/test			Unit tests
+/i18n			Translation tables
+/scss			SCSS sources
 ```
 
 ## App structure
 
-Apps follow the same structure of a module, with a little difference: the app
-must import all the modules it will need to run.
+Apps follow the same structure of a module. Modules and apps are barely the same
+thing. The only difference is that an `app` will import all the module it needs 
+and have them declared as module dependencies.
 
-
-## Module vs App
-
-Modules and apps are barely the same thing. The only difference is that an `app`
-will import all the module it needs and have them as module dependencies.
-
-So, if your __app__ `foo` have a `user` module and a `login` module as dependencies,
+So, if your app called `foo` have `user` and `store` as module dependencies,
 your app would be like this:
 
+```javascript
+
+angular.module('foo', ['user', 'store']);
+// ...
+
 ```
-angular.module('foo', ['user', 'login']);
+
+Since we have __Browserify__ and __ES6__ support built-in, so you would do it this way:
+
+```javascript
+
+import user from 'user';
+import store from 'store';
+
+angular.module('foo', [user.name, store.name]);
+// ...
+
 ```
+
+The reason for this is:
+
+- The ES6 modules syntax will be converted to `require()` syntax to be used by
+Browserify. It is also super clean and beautiful :D
+
+- Each module you import will be actually a reference to the Angular's `module`
+object (that one returned by `angular.module('modulename')`), which has a `name`
+property. So, using this property, you are actually pointing to that module.
 
 
