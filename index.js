@@ -1,116 +1,120 @@
 'use strict';
 
-var livereload = require('gulp-livereload');
-var livereloadServer;
+var fs = require('graceful-fs'),
+	path = require('path'),
+	logger = require('./lib/utils/log'),
+	copy = require('./lib/utils/copy'),
+	getDirectories = require('./lib/utils/getDirectories'),
+	logger = require('./lib/utils/log'),
+	async = require('async'),
+	colors = require('chalk'),
 
-var CoreBuilder = require('./lib/CoreModuleBuilder');
-var AppBuilder = require('./lib/AppModuleBuilder');
-var path = require('path');
+	ENV = {
+		root: process.cwd()
+	};
 
-var paths = {
-		'public': 'public',
-		apps: 'src/apps',
-		libraries: 'src/library'
-	},
+/**
+ * In a package.json:
+ *
+ *  "paths": {
+ *    "public": "/public",
+ *    "apps": "/source/app/modules/",
+ *    "libraries": "/source/app/core/"
+ *  }
+ */
 
-	libraries = [],
-	applications = [],
+/**
+ * ** Build:
+ *
+ * - list all folders inside sourcePath.libraries and load modules:
+ * 		each (module):
+ * 		- load module.json
+ * 		- create module context object
+ * 		- queue the module
+ * 		- run async
+ */
+function buildLibs(done) {
+	if (!ENV.libraries) {
+		throw new Error('Missing config entry: "ngbuilder.libraries"');
+	}
 
-	libPrefix = 'core.',
-	appPrefix = 'app.';
-
-function setPaths(_paths) {
-	copy(paths, _paths);
+	loadAndBuild(ENV.libraries, done);
 }
 
-function copy(dest, src) {
-	Object.keys(src).forEach(function(key) {
-		dest[key] = src[key];
+function buildApps(done) {
+	if (!ENV.apps) {
+		throw new Error('Missing config entry: "ngbuilder.apps"');
+	}
+
+	loadAndBuild(ENV.apps, done);
+}
+
+function buildAll(done) {
+	buildLibs(function(err) {
+		if (err) return done(err);
+
+		buildApps(done);
 	});
 }
 
-function watchCoreModulesTask() {
-	libraries.forEach(watchCoreModule);
-	livereloadServer || (livereloadServer = livereload.listen());
-}
+function loadAndBuild(path, done) {
+	var queue = [];
 
-function watchAppModulesTask() {
-	applications.forEach(watchAppModule);
-	livereloadServer || (livereloadServer = livereload.listen());
-}
+	var ModuleBuilder = require('./lib/ModuleBuilder');
 
-function buildCoreModulesTask(done) {
-	var buildCount = 0;
+	loadModulesFromDirectory(path, function(modules) {
+		modules.forEach(function(module) {
+			var builder = new ModuleBuilder(module);
 
-	libraries.forEach(function(moduleName) {
-		buildCoreModule(moduleName).on('change', function(err) {
-			if (!done) return;
-			if (err) done(err);
-			if (++buildCount === libraries.length) done();
+			queue.push(function(done) {
+				var evt = builder.build();
+				evt.on('end', done);
+				evt.on('error', done);
+			});
+		});
+
+		async.series(queue, function(err) {
+			if (err) {
+				logger.info(colors.red('### Build failed ###'));
+				return done && done(err);
+			}
+
+			logger.info(colors.green('All done.'));
+			done && done();
 		});
 	});
 }
 
-function buildAppModulesTask() {
-	applications.forEach(buildAppModule);
+function loadModulesFromDirectory(dir, cb) {
+	var Context = require('./lib/Context'),
+		Module = require('./lib/Module');
+
+	getDirectories(dir, function(error, files) {
+		if (error) throw error;
+
+		var modules = [];
+
+		files.forEach(function(modulePath) {
+			if (!fs.existsSync(path.join(modulePath, 'module.json'))) return;
+
+			var context = new Context({
+				modulePath: modulePath
+			});
+
+			copy(context, ENV);
+
+			modules.push(new Module(context));
+		});
+
+		cb(modules);
+	});
 }
 
-function notifyLivereload(err) {
-	err || livereload.changed();
-}
-
-function buildCoreModule(moduleName) {
-	return makeCoreModuleBuilder(moduleName).build();
-}
-
-function buildAppModule(moduleName) {
-	return makeAppModuleBuilder(moduleName).build();
-}
-
-function watchCoreModule(moduleName) {
-	makeCoreModuleBuilder(moduleName).watch().on('change', notifyLivereload);
-}
-
-function watchAppModule(moduleName) {
-	makeAppModuleBuilder(moduleName).watch().on('change', notifyLivereload);
-}
-
-function makeAppModuleBuilder(moduleName) {
-	return new AppBuilder(appPrefix + moduleName, path.join(paths.apps, moduleName), paths);
-}
-
-function makeCoreModuleBuilder(moduleName) {
-	return new CoreBuilder(libPrefix + moduleName, path.join(paths.libraries, moduleName));
-}
-
-function updateConfigs(options) {
-	if (options.paths) {
-		setPaths(options.paths);
-	}
-
-	if (options.libraries) {
-		libraries = options.libraries;
-	}
-
-	if (options.apps) {
-		applications = options.apps;
-	}
-
-	if (options.libPrefix) {
-		libPrefix = options.libPrefix;
-	}
-
-	if (options.appPrefix) {
-		appPrefix = options.appPrefix;
-	}
-}
-
-function loadConfigsFromManifest(__dirname) {
-	var fs = require('fs'),
-		pkg = path.join(__dirname, 'package.json');
+function loadConfigsFromPath(pathToLoad) {
+	var pkg = path.join(pathToLoad, 'package.json');
 
 	if (!fs.existsSync(pkg)) {
-		throw new Error('package.json not found in ' + __dirname);
+		throw new Error('package.json not found in ' + path);
 	}
 
 	pkg = require(pkg);
@@ -120,30 +124,27 @@ function loadConfigsFromManifest(__dirname) {
 	}
 
 	var options = pkg.ngbuilder,
-		paths = options.paths;
+		relativePaths = options.paths;
 
-	paths = {
-		'public': makePath(paths.public),
-		'apps': makePath(paths.apps),
-		'libraries': makePath(paths.libraries)
-	};
+	Object.keys(relativePaths).forEach(function(pathName) {
+		var relPaths = relativePaths[pathName];
 
-	function makePath(partial) {
-		return path.join(__dirname, partial);
-	}
-
-	updateConfigs({
-		paths: paths,
-		libraries: options.libraries || [],
-		apps: options.apps || [],
-		libPrefix: options.libPrefix || false,
-		appPrefix: options.appPrefix || false
+		if (typeof relPaths === 'string') {
+			ENV[pathName] = path.join(pathToLoad, relPaths);
+		} else {
+			ENV[pathName] = relPaths.map(function(relPath) {
+				return path.join(pathToLoad, relPath);
+			});
+		}
 	});
+
+	// saves the app version for later interpolation
+	ENV.appVersion = pkg.version;
 }
 
 function serveFiles(port) {
 	var Server = require('./lib/StaticServer');
-	var staticServer = new Server(paths.public || 'public');
+	var staticServer = new Server(ENV.public || 'public');
 
 	staticServer.listen(port || 8000);
 
@@ -151,12 +152,10 @@ function serveFiles(port) {
 }
 
 module.exports = {
-	watchLibs: watchCoreModulesTask,
-	watchApps: watchAppModulesTask,
-	buildLibs: buildCoreModulesTask,
-	buildApps: buildAppModulesTask,
-	configure: updateConfigs,
-	loadConfigsFromManifest: loadConfigsFromManifest,
+	loadConfigsFromPath: loadConfigsFromPath,
+	buildLibs: buildLibs,
+	buildApps: buildApps,
+	buildAll: buildAll,
 	serveFiles: serveFiles,
-	log: require('./lib/helpers/log')
+	log: logger
 };

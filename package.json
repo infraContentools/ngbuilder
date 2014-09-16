@@ -26,7 +26,11 @@
     "gulp-jshint": "^1.8.4",
     "gulp-browserify": "^0.5.0",
     "gulp-sourcemaps": "^1.1.5",
-    "jshint-stylish": "^0.4.0"
+    "jshint-stylish": "^0.4.0",
+    "require-dir": "^0.1.0",
+    "graceful-fs": "^3.0.2",
+    "gulp-template": "^1.1.0",
+    "gulp-sass": "^0.7.3"
   },
   "devDependencies": {},
   "scripts": {

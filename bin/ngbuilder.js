@@ -28,7 +28,7 @@ function handleArguments(env) {
 		process.exit(1);
 	}
 
-	builder.loadConfigsFromManifest(env.configBase);
+	builder.loadConfigsFromPath(env.configBase);
 
 	if (process.cwd() !== env.cwd) {
 		process.chdir(env.cwd);
@@ -41,27 +41,29 @@ function handleArguments(env) {
 		process.env.DEBUG = true;
 	}
 
+	function done(err) {
+		process.exit(err ? 1 : 0);
+	}
+
 	switch (cmd) {
 		case 'build':
-			builder.log.info('Building the entire app! Bear with me...');
-			builder.buildLibs();
-			builder.buildApps();
+			builder.log.info(colors.green('>>> Building the entire app! Bear with me...'));
+			builder.buildAll(done);
 			break;
 
 		case 'watch':
 			builder.log.info('Watching for changes...');
-			builder.watchLibs();
-			builder.watchApps();
+			builder.watchAll();
 			break;
 
 		case 'build-libs':
-			builder.log.info('Building libs...');
-			builder.buildLibs();
+			builder.log.info(colors.green('Building libs...'));
+			builder.buildLibs(done);
 			break;
 
 		case 'build-apps':
-			builder.log.info('Building apps...');
-			builder.buildApps();
+			builder.log.info(colors.green('Building apps...'));
+			builder.buildApps(done);
 			break;
 
 		case 'watch-libs':
