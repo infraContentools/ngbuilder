@@ -58,9 +58,8 @@ function buildAll(done) {
 }
 
 function loadAndBuild(path, done) {
-	var queue = [];
-
-	var ModuleBuilder = require('./lib/ModuleBuilder');
+	var queue = [],
+		ModuleBuilder = require('./lib/ModuleBuilder');
 
 	loadModulesFromDirectory(path, function(modules) {
 		modules.forEach(function(module) {

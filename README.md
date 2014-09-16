@@ -1,5 +1,9 @@
 # Angular module builder
 
+## TL;DR
+
+A wrapper for common tasks in a frontend project, using Gulp, Browserify and friends.
+
 ## Install with npm
 
 ```
@@ -10,18 +14,41 @@ $ npm install -g ngbuilder
 
 ## Goals
 
-Write a modular/pluggable component builder to AngularJS, with the following:
+Write a modular/pluggable component builder to AngularJS, that does the common things of
+all projects, through plugins:
+
+
+## Plugins
+
+### ngbuilder-src
 
 - You write all your `.js` files inside a "/src" folder. Angular annotations 
-in this sources are handled with ng-annotate.
-- You write your `.scss/.less/.whatever` files in a "scss/less/whatever" folder
-- You write your views (`.html` partials) in a "views" folder and they are 
-bundled with the sources, using `$templateCache`
-- And so on.
+in the sources are handled with ng-annotate. ES6 syntax is handed to traceur.
+The files go through JSHint to check for common mistakes. The sources are concatenated,
+and the result is write to `index.js` in the module root. The name "index.js" has a reason:
+Browserify can find it with a simple `require('/path/to/module');`
 
-The builder then should load a plugin to "compile" each of this folder contents,
-to generate a single file for each resource 
-(module.js, module.css, module.i18n.json...)
+### ngbuilder-sass / ngbuilder-less
+
+- You write your `.scss/.less/.whatever` files in a "scss/less/whatever" folder, then
+the plugin outputs a `module.css` file in the module root
+
+
+### ngbuilder-templateCache
+
+- You write your views (`.html` partials) in a "views" folder and they are 
+bundled as JS files, using AngularJS `$templateCache`. The views are saved to
+`/src/views.js`
+
+### ...
+
+And so on.
+
+
+### ngbuilder-browserify
+
+The steps above will generate some files that can be put together to make an app.
+For the JS files, browserify can generate a final bundle with all the dependencies.
 
 ## Commands
 
@@ -37,13 +64,15 @@ Each module should have a structure similar to this:
 
 
 ```
+
 /src			module JS sources (expected: module.js + **/*.js)
 /views			HTML partials (mostly directive templates)
+/test			Unit tests
+/scss			SCSS sources
 
 // soon
-/test			Unit tests
 /i18n			Translation tables
-/scss			SCSS sources
+
 ```
 
 ## App structure

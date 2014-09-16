@@ -47,7 +47,7 @@
   ],
   "author": {
     "name": "Darlan Alves",
-    "email": "darlan@moovia.com"
+    "email": "me@darlanalv.es"
   },
   "bin": {
     "ngbuilder": "./bin/ngbuilder.js"
