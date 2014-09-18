@@ -68,12 +68,13 @@ function handleArguments(env) {
 			break;
 
 		case 'build-module':
-			builder.buildModule(args.m, done);
+			console.log(args);
+			builder.buildModule(args.m || args._[1], done);
 			break;
 
 		case 'watch':
 			builder.log.info('Watching for changes...');
-			builder.watchAll();
+			builder.watch(done);
 			break;
 
 		case 'build-libs':
@@ -84,16 +85,6 @@ function handleArguments(env) {
 		case 'build-apps':
 			builder.log.info(colors.green('Building apps...'));
 			builder.buildApps(done);
-			break;
-
-		case 'watch-libs':
-			builder.log.info('Watching for changes...');
-			builder.watchLibs();
-			break;
-
-		case 'watch-apps':
-			builder.log.info('Watching for changes...');
-			builder.watchApps();
 			break;
 
 		case 'serve':
@@ -111,10 +102,10 @@ function showUsage() {
 		'',
 		' build-apps			Build the top-level applications',
 		' build-libs			Build the app libraries',
-		' watch-apps 			Watch for changes and auto-rebuild apps',
-		' watch-libs 			Watch for changes and auto-rebuild libs',
 		' build				Build the entire app for production',
+
 		' watch				Waits for file changes on source files and rebuild modules on demand',
+
 		' serve [-p PORT]		Serve the public folder using a built-in Node.JS server',
 		''
 	].join('\n\t'));
