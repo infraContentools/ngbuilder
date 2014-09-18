@@ -21,12 +21,16 @@ var cli = new Liftoff({
 cli.launch({}, handleArguments);
 
 function handleArguments(env) {
-	var builder = require('../index');
+	var builder = require('../lib/Builder');
 
 	if (!env.configPath) {
 		builder.log.error('No builder config found');
 		process.exit(1);
 	}
+
+	builder.setEnv({
+		root: process.cwd()
+	});
 
 	builder.loadConfigsFromPath(env.configBase);
 
@@ -35,13 +39,25 @@ function handleArguments(env) {
 		builder.log.info('Working directory changed to', colors.magenta(env.cwd));
 	}
 
-	var cmd = args._[0];
+	var cmd = args._[0],
+		debug = 'd' in args;
 
-	if ('d' in args) {
+	if (debug) {
 		process.env.DEBUG = true;
+	} else if ('q' in args) {
+		process.env.QUIET = true;
 	}
 
+
 	function done(err) {
+		if (err) {
+			if (debug) builder.log.error(err);
+
+			builder.log.info(colors.red('!!! build failed !!!'));
+		} else {
+			builder.log.info(colors.green('### done ###'));
+		}
+
 		process.exit(err ? 1 : 0);
 	}
 
@@ -49,6 +65,10 @@ function handleArguments(env) {
 		case 'build':
 			builder.log.info(colors.green('>>> Building the entire app! Bear with me...'));
 			builder.buildAll(done);
+			break;
+
+		case 'build-module':
+			builder.buildModule(args.m, done);
 			break;
 
 		case 'watch':
