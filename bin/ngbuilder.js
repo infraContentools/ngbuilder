@@ -40,14 +40,13 @@ function handleArguments(env) {
 	}
 
 	var cmd = args._[0],
-		debug = 'd' in args;
+		debug = 'v' in args;
 
 	if (debug) {
 		process.env.DEBUG = true;
 	} else if ('q' in args) {
 		process.env.QUIET = true;
 	}
-
 
 	function done(err) {
 		if (err) {
@@ -88,7 +87,10 @@ function handleArguments(env) {
 			break;
 
 		case 'serve':
-			builder.serveFiles(args.p || 8000);
+			builder.serveFiles({
+				port: args.p,
+				path: args.d
+			});
 			break;
 
 		default:
