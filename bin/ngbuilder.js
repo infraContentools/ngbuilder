@@ -67,7 +67,6 @@ function handleArguments(env) {
 			break;
 
 		case 'build-module':
-			console.log(args);
 			builder.buildModule(args.m || args._[1], done);
 			break;
 
