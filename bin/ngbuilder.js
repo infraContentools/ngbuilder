@@ -44,8 +44,14 @@ function handleArguments(env) {
 
 	if (debug) {
 		process.env.DEBUG = true;
+		builder.setEnv({
+			debug: true
+		});
 	} else if ('q' in args) {
 		process.env.QUIET = true;
+		builder.setEnv({
+			quiet: true
+		});
 	}
 
 	function done(err) {
@@ -99,7 +105,7 @@ function handleArguments(env) {
 
 function showUsage() {
 	console.log([
-		'\n  Usage:\n\n  ' + colors.green('ngbuilder ') + colors.bold('command [args...]\n\n  ') + colors.bold('Available commands:'),
+		'\n  Usage:\n\n  ' + colors.bold('ngbuilder command [args...]\n\n  ') + colors.bold('Available commands:'),
 		'',
 		' build-apps			Build the top-level applications',
 		' build-libs			Build the app libraries',
