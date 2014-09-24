@@ -8,7 +8,6 @@ A wrapper for common tasks in a frontend project, using Gulp, Browserify and fri
 
 ```
 $ npm install -g ngbuilder
-
 ```
 
 ## Goals

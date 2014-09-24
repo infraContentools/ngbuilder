@@ -94,7 +94,7 @@ function handleArguments(env) {
 		case 'serve':
 			builder.serveFiles({
 				port: args.p,
-				path: args.d
+				path: args.d || args._[1]
 			});
 			break;
 
@@ -115,10 +115,12 @@ function showUsage() {
 		'build-libs': 'Build the app libraries',
 		'build-module [-m] <moduleName>': 'Build the specified module. -m is optional',
 		'build': 'Build the entire app for production',
+
 		'watch': 'Waits for file changes on source files and rebuild modules on demand',
-		'serve': '',
-		'serve [-p] 8000': '',
-		'serve -p 8000 -d public': 'Serve the public folder using a built-in Node.JS server (default port: 8000)'
+
+		'serve': 'With no arguments - reads the public path from package.json ("serverRoot" or "public" options)',
+		'serve path/to/files': '',
+		'serve -p 8000 -d public/path': 'Serve the public folder using a built-in Node.JS server (default port: 8000)'
 	};
 
 	console.log('\nusage:  ' + colors.bold('ngbuilder command [args...] [-v]\n\n  ') + colors.green('Available commands and options:'));
