@@ -1,4 +1,4 @@
-# Angular module builder
+# Angular app builder
 
 ## TL;DR
 
@@ -7,20 +7,19 @@ A wrapper for common tasks in a frontend project, using Gulp, Browserify and fri
 ## Install with npm
 
 ```
-
 $ npm install -g ngbuilder
 
 ```
 
 ## Goals
 
-Write a modular/pluggable component builder to AngularJS, that does the common things of
-all projects, through plugins:
+Write a modular/pluggable app builder that does the common things of AngularJS projects
+through plugins that wrap gulp tasks (watch, uglify, browserify, cssmin, ngAnnotate...)
 
 
 ## Plugins
 
-### ngbuilder-src
+### [ngbuilder-src](https://github.com/infraContentools/ngbuilder-src)
 
 - You write all your `.js` files inside a "/src" folder. Angular annotations 
 in the sources are handled with ng-annotate. ES6 syntax is handed to traceur.
@@ -28,29 +27,28 @@ The files go through JSHint to check for common mistakes. The sources are concat
 and the result is write to `index.js` in the module root. The name "index.js" has a reason:
 Browserify can find it with a simple `require('/path/to/module');`
 
-### ngbuilder-sass / ngbuilder-less
+### [ngbuilder-sass](https://github.com/infraContentools/ngbuilder-sass)
 
 - You write your `.scss/.less/.whatever` files in a "scss/less/whatever" folder, then
 the plugin outputs a `module.css` file in the module root
 
 
-### ngbuilder-templateCache
+### [ngbuilder-templatecache](https://github.com/infraContentools/ngbuilder-templatecache)
 
 - You write your views (`.html` partials) in a "views" folder and they are 
 bundled as JS files, using AngularJS `$templateCache`. The views are saved to
 `/src/views.js`
 
-### ...
-
-And so on.
-
-
-### ngbuilder-browserify
+### [ngbuilder-browserify](https://github.com/infraContentools/ngbuilder-browserify)
 
 The steps above will generate some files that can be put together to make an app.
 For the JS files, browserify can generate a final bundle with all the dependencies.
 
-## Commands
+### What else?
+
+Plugins are really simple to write. They're just Gulp wrappers.
+
+## Command-line
 
 See the usage options right from the command-line. On a terminal, run this:
 

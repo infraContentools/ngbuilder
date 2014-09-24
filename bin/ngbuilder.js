@@ -104,16 +104,25 @@ function handleArguments(env) {
 }
 
 function showUsage() {
-	console.log([
-		'\n  Usage:\n\n  ' + colors.bold('ngbuilder command [args...]\n\n  ') + colors.bold('Available commands:'),
-		'',
-		' build-apps			Build the top-level applications',
-		' build-libs			Build the app libraries',
-		' build				Build the entire app for production',
+	var columnSize = 40,
+		sp = Array(columnSize).join(' ');
 
-		' watch				Waits for file changes on source files and rebuild modules on demand',
+	var commands = {
+		'-v': 'Be verbose (debug)',
+		'-q': 'Supress logs (quiet)',
+		'': '',
+		'build-apps': 'Build the top-level applications',
+		'build-libs': 'Build the app libraries',
+		'build-module [-m] <moduleName>': 'Build the specified module. -m is optional',
+		'build': 'Build the entire app for production',
+		'watch': 'Waits for file changes on source files and rebuild modules on demand',
+		'serve': '',
+		'serve [-p] 8000': '',
+		'serve -p 8000 -d public': 'Serve the public folder using a built-in Node.JS server (default port: 8000)'
+	};
 
-		' serve [-p PORT]		Serve the public folder using a built-in Node.JS server',
-		''
-	].join('\n\t'));
+	console.log('\nusage:  ' + colors.bold('ngbuilder command [args...] [-v]\n\n  ') + colors.green('Available commands and options:'));
+	Object.keys(commands).forEach(function(cmd) {
+		console.log('  ' + colors.bold(cmd) + sp.substr(0, columnSize - cmd.length) + colors.white(commands[cmd]));
+	});
 }
