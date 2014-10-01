@@ -78,7 +78,10 @@ function handleArguments(env) {
 
 		case 'watch':
 			builder.log.info('Watching for changes...');
-			builder.watch(done);
+			builder.watch(function(err, watcher) {
+				if (err) return done(err);
+				watcher.on('error', builder.log.error);
+			});
 			break;
 
 		case 'build-libs':
